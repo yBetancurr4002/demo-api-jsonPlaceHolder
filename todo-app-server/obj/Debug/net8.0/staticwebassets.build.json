@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "W7KjoLD7f+N374nmQBL+scIZuFlW7PzIeF5TXS1WsJI=",
+  "Source": "todo-app-server",
+  "BasePath": "_content/todo-app-server",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
