@@ -1,9 +1,11 @@
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using todo_app_server.Data;
 using todo_app_server.DTOs;
+using todo_app_server.enums;
 using todo_app_server.Models;
 using todo_app_server.Services;
 
@@ -21,26 +23,26 @@ namespace todo_app_server.Controllers
             _context = context;
             _tokenService = tokenService;
         }
-        
+
         [HttpPost("register")]
+        [Authorize(Roles = nameof(UserRole.Admin))] // Utilizando el enum creado
         public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
             if (await _context.Users.AnyAsync(u => u.Username == registerDto.Username))
             {
                 return BadRequest("Username is already taken");
             }
-            
-            using var hmac = new HMACSHA512();
-            
+
+
             var user = new User
             {
                 Username = registerDto.Username,
-                PasswordHash = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)))
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password)
             };
-            
+
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
-            
+
             return new UserDto
             {
                 Id = user.Id,
@@ -60,9 +62,8 @@ namespace todo_app_server.Controllers
             }
             
             using var hmac = new HMACSHA512();
-            var computedHash = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(loginDto.Password)));
             
-            if (user.PasswordHash != computedHash)
+            if (!BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
             {
                 return Unauthorized("Invalid password");
             }

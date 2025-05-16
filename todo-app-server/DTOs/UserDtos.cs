@@ -25,6 +25,7 @@ namespace todo_app_server.DTOs
     {
         public int Id { get; set; }
         public string Username { get; set; }
-        public string Token { get; set; }
+        public string Role { get; set; } 
+        public string Token { get; set; } // Opcional, si devuelves token en login
     }
 }
